@@ -218,7 +218,7 @@ async def start_stream(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "-re",
         "-stream_loop", "-1",
         "-i", str(video_path),
-        "-c:v", "libx264", "-preset", "veryfast", "-b:v", "3000k", "-maxrate", "3000k", "-bufsize", "6000k",
+        "-c:v", "libx264", "-preset", "ultrafast", "-tune", "zerolatency", "-b:v", "1000k", "-maxrate", "1000k", "-bufsize", "2000k",
         "-pix_fmt", "yuv420p", "-g", "50",
         "-c:a", "aac", "-b:a", "128k", "-ar", "44100",
         "-f", "flv",
@@ -235,7 +235,7 @@ async def start_stream(update: Update, context: ContextTypes.DEFAULT_TYPE):
             preexec_fn=preexec
         )
         ACTIVE_STREAMS[chat_id] = process
-        await update.message.reply_text(f"✅ **Stream Started!** (PID: {process.pid})")
+        await update.message.reply_text(f"✅ *Stream Started!* (PID: {process.pid})")
     except Exception as e:
         logger.error(f"Stream start failed: {e}")
         await update.message.reply_text(f"❌ Failed to start stream: {e}")
@@ -261,14 +261,14 @@ async def stop_stream(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if chat_id in ACTIVE_STREAMS:
         del ACTIVE_STREAMS[chat_id]
         
-    await update.message.reply_text("⏹ **Stream Stopped.**")
+    await update.message.reply_text("⏹ *Stream Stopped.*")
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     if chat_id in ACTIVE_STREAMS:
         proc = ACTIVE_STREAMS[chat_id]
         if proc.poll() is None:
-            await update.message.reply_text(f"✅ **Stream is LIVE** (PID: {proc.pid})")
+            await update.message.reply_text(f"✅ *Stream is LIVE* (PID: {proc.pid})")
         else:
             del ACTIVE_STREAMS[chat_id]
             await update.message.reply_text("❌ Stream process died unexpectedly.")
